@@ -199,8 +199,8 @@ Use o **Thuner Cliente** para testar os endpoints:
 ```json
 {
   "id": 1,
-  "nome": "Daniel",
-  "email": "daniel@email.com"
+  "nome": "Leo",
+  "email": "leo@email.com"
 }
 ```
 
@@ -210,8 +210,8 @@ Resposta esperada:
 [
   {
     "id": 1,
-    "nome": "Daniel",
-    "email": "daniel@email.com"
+    "nome": "Leo",
+    "email": "leo@email.com"
   }
 ]
 ```
@@ -219,7 +219,7 @@ Resposta esperada:
 ### **Atualizar Usuário** – `PUT /users/1`  
 ```json
 {
-  "nome": "Daniel Atualizado",
+  "nome": "Leo Atualizado",
   "email": "email@atualizado.com"
 }
 ```
