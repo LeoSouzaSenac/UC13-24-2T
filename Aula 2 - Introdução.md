@@ -229,7 +229,7 @@ app.listen(PORT, (): void => {
 
 ### Explicando este código
 
-1. `const app: Application = express();`: App representa o objeto express, ou seja, a instância do nosso servidor web. Depois de criado, podemos usar estes métodos:
+1. `const app: Application = express();`: App representa o objeto express, ou seja, a instância do nosso servidor backend. Depois de criado, podemos usar estes métodos:
 
 | Exemplo                         | Função                  |
 | ------------------------------- | ----------------------- |
