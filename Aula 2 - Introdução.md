@@ -244,7 +244,11 @@ Define a porta 3000 para o servidor escutar (significa que o servidor está “o
 Sobre portas, pense no seu computador ou servidor como um prédio. Dentro desse prédio, existem várias portas. Cada porta serve para um tipo diferente de serviço ou conversa.
 Quando alguém quer falar com um serviço específico (por exemplo, um site, um email, um jogo), essa pessoa precisa bater na porta certa.
 
-#### 3. `app.get('/', (req: Request, res: Response): void => {  res.send('🚀 Servidor TypeScript rodando!');});`: 
+#### 3. `app.use(express.json());`
+
+Essa linha faz com que o **Express consiga entender e converter o corpo das requisições em JSON** (por exemplo: `{ "nome": "Leo" }`) para **objetos JavaScript acessíveis via `req.body`**.
+
+#### 4. `app.get('/', (req: Request, res: Response): void => {  res.send('🚀 Servidor TypeScript rodando!');});`: 
 app.get() define uma rota do tipo GET no caminho /. Quando alguém acessar http://localhost:3000/, o Express executa essa função. Essa função recebe dois argumentos:
 req: representa a requisição do cliente (navegador, por exemplo). Os tipos Request e Response vem da biblioteca do express. 
 
@@ -252,20 +256,32 @@ res: representa a resposta que o servidor vai enviar.
 
 res.send() envia uma mensagem como resposta.
 
+Mas porque usamos send() e não um simples console.log()?
+
+ console.log(...) → Só aparece no terminal do servidor
+Serve apenas para debugar ou ver informações internamente no servidor (onde o Node.js está rodando).
+O cliente (ex: navegador) nunca verá isso. É como um "diário" do servidor. Só o desenvolvedor vê isso no terminal!
+
+res.send(...) → Responde ao cliente
+Envia uma resposta real para o cliente (navegador, app, Postman, ThunderClient etc.).Sem isso, o cliente ficaria esperando para sempre, sem resposta.
+É como dizer: "Toma aqui o conteúdo que você pediu!". Exemplo:
+```ts
+res.send('Bem-vindo!');
+```
+ O navegador vai exibir "Bem-vindo!" na tela, porque o servidor enviou isso de volta.
+
 | Termo      | O que é                               | De onde vem | Por que usar                                                                       |
 | ---------- | ------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
 | `Request`  | Tipo que representa a requisição HTTP | `express`   | Permite acessar `req.body`, `req.params`, etc. com segurança                       |
 | `Response` | Tipo que representa a resposta HTTP   | `express`   | Permite usar `res.send()`, `res.json()`, etc., com dicas e validação do TypeScript |
 
 
-#### 4: `app.listen(PORT, (): void => {  console.log(`🔥 Servidor rodando em http://localhost:${PORT}`);});`:
+#### 5: `app.listen(PORT, (): void => {  console.log(`🔥 Servidor rodando em http://localhost:${PORT}`);});`:
 app.listen(PORT, ...): inicia o servidor na porta informada (por exemplo, 3000).
 (): void => { ... }: é uma função de callback (executada assim que o servidor começa a funcionar).
 console.log(...): apenas imprime no terminal uma mensagem dizendo que o servidor está no ar.
 
-#### 3. `app.use(express.json());`
 
-Essa linha faz com que o **Express consiga entender e converter o corpo das requisições em JSON** (por exemplo: `{ "nome": "Leo" }`) para **objetos JavaScript acessíveis via `req.body`**.
 
 ---
 
