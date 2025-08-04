@@ -239,9 +239,29 @@ app.listen(PORT, (): void => {
 | `app.use('/api', router)`       | Encaixar rotas externas |
 | `app.set(...)` / `app.get(...)` | Configurações internas  |
 
-2.`const PORT: number = 3000;`: Define a porta 3000 para o servidor escutar (significa que o servidor está “ouvindo” essa porta esperando por conexões ou pedidos (requests)).
+#### 2.`const PORT: number = 3000;`: 
+Define a porta 3000 para o servidor escutar (significa que o servidor está “ouvindo” essa porta esperando por conexões ou pedidos (requests)).
 Sobre portas, pense no seu computador ou servidor como um prédio. Dentro desse prédio, existem várias portas. Cada porta serve para um tipo diferente de serviço ou conversa.
 Quando alguém quer falar com um serviço específico (por exemplo, um site, um email, um jogo), essa pessoa precisa bater na porta certa.
+
+#### 3. `app.get('/', (req: Request, res: Response): void => {  res.send('🚀 Servidor TypeScript rodando!');});`: 
+app.get() define uma rota do tipo GET no caminho /. Quando alguém acessar http://localhost:3000/, o Express executa essa função. Essa função recebe dois argumentos:
+req: representa a requisição do cliente (navegador, por exemplo). Os tipos Request e Response vem da biblioteca do express. 
+
+res: representa a resposta que o servidor vai enviar.
+
+res.send() envia uma mensagem como resposta.
+
+| Termo      | O que é                               | De onde vem | Por que usar                                                                       |
+| ---------- | ------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
+| `Request`  | Tipo que representa a requisição HTTP | `express`   | Permite acessar `req.body`, `req.params`, etc. com segurança                       |
+| `Response` | Tipo que representa a resposta HTTP   | `express`   | Permite usar `res.send()`, `res.json()`, etc., com dicas e validação do TypeScript |
+
+
+#### 4: `app.listen(PORT, (): void => {  console.log(`🔥 Servidor rodando em http://localhost:${PORT}`);});`:
+app.listen(PORT, ...): inicia o servidor na porta informada (por exemplo, 3000).
+(): void => { ... }: é uma função de callback (executada assim que o servidor começa a funcionar).
+console.log(...): apenas imprime no terminal uma mensagem dizendo que o servidor está no ar.
 
 #### 3. `app.use(express.json());`
 
