@@ -227,6 +227,76 @@ app.listen(PORT, (): void => {
 });
 ```
 
+### Explicando este código
+
+1. `const app: Application = express();`: App representa o objeto express, ou seja, a instância do nosso servidor web. Depois de criado, podemos usar estes métodos:
+  | Exemplo                         | Função                  |
+| ------------------------------- | ----------------------- |
+| `app.get(...)`                  | Define rotas GET        |
+| `app.post(...)`                 | Define rotas POST       |
+| `app.use(...)`                  | Aplica middlewares      |
+| `app.listen(...)`               | Inicia o servidor       |
+| `app.use('/api', router)`       | Encaixar rotas externas |
+| `app.set(...)` / `app.get(...)` | Configurações internas  |
+
+2.`const PORT: number = 3000;`: Define a porta 3000 para o servidor escutar (significa que o servidor está “ouvindo” essa porta esperando por conexões ou pedidos (requests)).
+Sobre portas, pense no seu computador ou servidor como um prédio. Dentro desse prédio, existem várias portas. Cada porta serve para um tipo diferente de serviço ou conversa.
+Quando alguém quer falar com um serviço específico (por exemplo, um site, um email, um jogo), essa pessoa precisa bater na porta certa.
+
+#### 3. `app.use(express.json());`
+
+Essa linha faz com que o **Express consiga entender e converter o corpo das requisições em JSON** (por exemplo: `{ "nome": "Leo" }`) para **objetos JavaScript acessíveis via `req.body`**.
+
+---
+
+### 🧠 Explicando por partes:
+
+- `app.use()` → Adiciona um **middleware**, ou seja, uma função que processa a requisição **antes** dela chegar nas suas rotas.
+- `express.json()` → É um middleware pronto do Express que **lê o corpo da requisição** quando ele está no formato JSON.
+- **Sem esse middleware**, o Express **não entenderia os dados JSON enviados** (por exemplo, no corpo de um POST).
+- **Com ele**, o Express **converte o JSON automaticamente** e deixa os dados disponíveis em `req.body`.
+
+---
+
+### 📦 O que são Middlewares?
+
+Middlewares são **funções que ficam "no meio do caminho"** entre a requisição do cliente e a resposta do servidor.
+
+Eles podem:
+
+- 📖 Ler dados (como JSON)
+- 🔐 Verificar se o usuário está logado
+- 📝 Registrar ações no log
+- ✅ Validar dados
+- 🔄 Fazer outras tarefas antes de enviar a resposta
+
+---
+
+### 🍽️ Analogia simples: restaurante
+
+Imagine um cliente fazendo um pedido em um restaurante:
+
+1. O cliente faz o pedido.
+2. O pedido passa por várias etapas:
+   - O garçom anota.
+   - A cozinha prepara.
+   - Alguém confere.
+3. Só depois o prato vai para a mesa.
+
+👉 Essas etapas são como **middlewares**: cada uma faz algo **antes da resposta final (comida na mesa)**.
+
+---
+
+### ✅ No nosso caso:
+
+O middleware `express.json()` faz o papel de:
+> “Antes de continuar, **converta o corpo da requisição em JSON**.”
+
+Assim, você pode acessar os dados direto em `req.body`.
+
+---
+
+
 ### **Diferenças e Importância da Tipagem**
 
 1. **Tipagem de `app` como `Application`**: No TypeScript, a variável `app` é do tipo `express.Application`. Embora o Express funcione corretamente sem tipagem explícita, é uma boa prática tipar a variável `app` como `Application`. Isso ajuda a evitar erros, já que o TypeScript vai fornecer autocompletar e verificações de tipo em todas as operações que você faz com o `app`.
