@@ -76,7 +76,99 @@ app.metodo('/caminho', (req: Request, res: Response): Response => {
 | PUT    | Sim            | Substituir todo o recurso |
 | PATCH  | Não            | Alterar parte do recurso  |
 
+Claro! As requisições **PUT** e **PATCH** são dois métodos HTTP usados para **atualizar recursos** em uma API REST, mas há diferenças importantes entre eles. Vamos ver a diferença principal e exemplos práticos.
+
 ---
+
+## ✅ Diferença Principal
+
+| Método    | Atualização  | Envia o recurso completo? | Substitui ou modifica?                 |
+| --------- | ------------ | ------------------------- | -------------------------------------- |
+| **PUT**   | **Completa** | **Sim**                   | **Substitui** o recurso inteiro        |
+| **PATCH** | **Parcial**  | **Não**                   | **Modifica** apenas os campos enviados |
+
+---
+
+## 🔧 Exemplo prático
+
+Imagine que temos um recurso **usuário** com esta estrutura:
+
+```json
+{
+  "id": 1,
+  "nome": "João",
+  "email": "joao@email.com",
+  "idade": 30
+}
+```
+
+---
+
+### ✅ PUT – Atualização Completa
+
+Se você quiser atualizar o usuário usando `PUT`, você precisa enviar **o objeto inteiro** (mesmo que só um campo mude). Caso contrário, os campos ausentes podem ser apagados.
+
+#### Requisição:
+
+```http
+PUT /usuarios/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "nome": "João Silva",
+  "email": "joao@email.com",
+  "idade": 30
+}
+```
+
+#### Resultado:
+
+Atualiza o usuário com os novos dados, **substituindo** o recurso original pelo novo.
+
+---
+
+### ✅ PATCH – Atualização Parcial
+
+Com `PATCH`, você só precisa enviar **os campos que deseja alterar**.
+
+#### Requisição:
+
+```http
+PATCH /usuarios/1
+Content-Type: application/json
+
+{
+  "nome": "João Silva"
+}
+```
+
+#### Resultado:
+
+Apenas o campo `nome` será alterado, os outros permanecerão iguais.
+
+---
+
+## 🧠 Dica Final
+
+* Use **PUT** quando quiser **substituir** o recurso inteiro.
+* Use **PATCH** quando quiser **atualizar apenas alguns campos**.
+
+---
+
+## Status - o que são?
+Status (ou códigos de status HTTP) são números que indicam o resultado de uma requisição feita a um servidor. Eles são enviados pelo servidor (por exemplo, uma API) como parte da resposta para dizer ao cliente (navegador, app, etc.) o que aconteceu com a requisição.
+Por exemplo, se você conseguiu criar um novo usuário, o status é o 201. Se você tentou acessar uma rota que não existe (por ter digitado ela errado, por exemplo) o status é o 404.
+ATENÇÃO: O Express não "adivinha" o status correto, ele só usa o padrão (200) se você não informar nenhum. Ou seja, se você não indicar o status correto, ele sempre vai retornar o 200, seja para sucesso, seja erro, etc.
+Portanto, **é responsabilidade do desenvolvedor** indicar o status adequado conforme o resultado da requisição (erro, sucesso, recurso criado, não encontrado, etc).
+
+Exemplo básico:
+```ts
+// O status 200 diz: "A requisição foi bem-sucedida"
+// O conteúdo (mensagem) é enviado junto (já convertido para o formato JSON, que é aceito praticamente por qualquer programa)
+res.status(200).json({ mensagem: "Tudo certo!" });
+
+```
 
 ### 📊 **Principais Status HTTP e Seus Significados**
 
@@ -185,12 +277,21 @@ Um **middleware** é uma função que roda **entre** a requisição e a resposta
 </div>
 
 ```ts
+// Define um middleware chamado "porteiroMiddleware"
+// Middleware é uma função que intercepta a requisição antes de ela chegar à rota final
+// NextFunction é o tipo da função next(). Se você não chamar next(), a requisição fica presa no middleware e não chega na rota final
 const porteiroMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  
+  // Exibe no console o caminho da URL acessada na requisição
   console.log(`📢 Requisição recebida em: ${req.url}`);
-  next(); // Libera a requisição para seguir
+
+  // Chama a função "next" para permitir que a requisição continue para o próximo middleware ou rota
+  next();
 };
 
-app.use(porteiroMiddleware); // Middleware global
+// Aplica o middleware "porteiroMiddleware" de forma global
+// Isso significa que ele será executado em **todas as requisições**, independentemente da rota
+app.use(porteiroMiddleware);
 ```
 
 ---
@@ -199,26 +300,36 @@ app.use(porteiroMiddleware); // Middleware global
 ## ❌ **Rota 404 para caminhos inválidos**
 
 ```ts
+// Middleware que trata requisições que não bateram em nenhuma rota definida
 app.use((req: Request, res: Response): Response => {
+  
+  // Retorna uma resposta com status HTTP 404 (Não Encontrado)
+  // E envia um JSON com a mensagem personalizada
   return res.status(404).json({ mensagem: 'Rota não encontrada!' });
 });
+
+//Esse middleware não chama next(). Isso é proposital.
+
+//Ele é executado por último, quando nenhuma das rotas anteriores foi atendida. Detalhe: ele deve ser criado por último, depois de todas as rotas.
+
+//Ou seja: se o Express chegar até aqui, é porque nenhuma rota válida foi encontrada para a URL solicitada → então ele retorna um erro 404.
 ```
 
 ---
 
 ## 🧪 **5. Exercícios para Praticar**
 
-1️⃣ **Crie uma rota GET `/sobre` que retorna JSON com seu nome, idade e descrição.**
+1️⃣ **Crie uma rota GET `/sobre` que retorna um JSON com seu nome, idade e descrição.**
 
-2️⃣ **Adicione um middleware que registre a hora exata da requisição no console.**
+2️⃣ **Adicione um middleware que registre a hora exata da requisição no console. Pesquise que recursos (classes, interfaces, bibliotecas, métodos, etc) usar e faça comentários explicando seu uso.**
 
 ```
 Requisição feita em: 2025-02-17T18:30:12.345Z
 ```
 
-3️⃣ **Crie uma rota POST `/comentarios` que recebe JSON com "texto".**
+3️⃣ **Crie uma rota POST `/comentarios` que recebe um JSON com "texto".**
 
-* Retorne 400 se estiver vazio
+* Retorne 400 se o corpo da requisição estiver vazio
 * Retorne 201 se recebido corretamente
 
 4️⃣ **Crie uma rota DELETE `/comentarios/:id`**
@@ -226,7 +337,11 @@ Requisição feita em: 2025-02-17T18:30:12.345Z
 * Retorne 204 ao excluir
 * Retorne 400 se o ID não for enviado
 
-5️⃣ (**Desafio bônus**) **Crie um middleware que bloqueie requisições feitas entre 00h e 06h.**
+5️⃣ (**Desafio bônus**) **Crie um middleware que bloqueie requisições feitas entre 00h e 06h. Pesquise que recursos (classes, interfaces, bibliotecas, métodos, etc) usar e faça comentários explicando seu uso.**
+
+
+**Atenção: comente todos os seus códigos, pois uma surpresa o aguarda ao final. HA HA HA**
+![Gif divertido](https://i.gifer.com/1aQu.gif)
 
 ---
 
