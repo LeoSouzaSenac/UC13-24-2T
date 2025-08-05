@@ -75,9 +75,6 @@ app.metodo('/caminho', (req: Request, res: Response): Response => {
 | ------ | -------------- | ------------------------- |
 | PUT    | Sim            | Substituir todo o recurso |
 | PATCH  | Não            | Alterar parte do recurso  |
-
-Claro! As requisições **PUT** e **PATCH** são dois métodos HTTP usados para **atualizar recursos** em uma API REST, mas há diferenças importantes entre eles. Vamos ver a diferença principal e exemplos práticos.
-
 ---
 
 ## ✅ Diferença Principal
@@ -158,8 +155,11 @@ Apenas o campo `nome` será alterado, os outros permanecerão iguais.
 
 ## Status - o que são?
 Status (ou códigos de status HTTP) são números que indicam o resultado de uma requisição feita a um servidor. Eles são enviados pelo servidor (por exemplo, uma API) como parte da resposta para dizer ao cliente (navegador, app, etc.) o que aconteceu com a requisição.
+
 Por exemplo, se você conseguiu criar um novo usuário, o status é o 201. Se você tentou acessar uma rota que não existe (por ter digitado ela errado, por exemplo) o status é o 404.
-ATENÇÃO: O Express não "adivinha" o status correto, ele só usa o padrão (200) se você não informar nenhum. Ou seja, se você não indicar o status correto, ele sempre vai retornar o 200, seja para sucesso, seja erro, etc.
+
+### ATENÇÃO: O Express não "adivinha" o status correto, ele só usa o padrão (200) se você não informar nenhum. Ou seja, se você não indicar o status correto, ele sempre vai retornar o 200, seja para sucesso, seja erro, etc.
+
 Portanto, **é responsabilidade do desenvolvedor** indicar o status adequado conforme o resultado da requisição (erro, sucesso, recurso criado, não encontrado, etc).
 
 Exemplo básico:
