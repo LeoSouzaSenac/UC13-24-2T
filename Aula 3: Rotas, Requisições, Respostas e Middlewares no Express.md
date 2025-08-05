@@ -341,7 +341,8 @@ Requisição feita em: 2025-02-17T18:30:12.345Z
 
 
 **Atenção: comente todos os seus códigos, pois uma surpresa o aguarda ao final. HA HA HA**
-![Gif divertido](https://i.gifer.com/1aQu.gif)
+
+![Gif du mau](https://i.gifer.com/1aQu.gif)
 
 ---
 
