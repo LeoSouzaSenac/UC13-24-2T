@@ -2,128 +2,122 @@
 
 ## Introdução
 
-No desenvolvimento web moderno, lidar com operações assíncronas é uma parte fundamental. Funções assíncronas em JavaScript permitem executar código que pode demorar, como chamadas de rede, sem bloquear a execução do restante do código. Neste documento, vamos explorar como as funções assíncronas funcionam, suas características e como usá-las efetivamente, especialmente com a Fetch API.
+No desenvolvimento de APIs com Node.js e Express, operações que acessam bancos de dados geralmente são assíncronas, pois podem demorar para serem concluídas. Para lidar com esse tipo de operação sem bloquear o servidor, usamos funções assíncronas em JavaScript/TypeScript.
 
-## 1. O Que São Funções Assíncronas?
+Neste documento, vamos entender como funcionam as funções assíncronas e as Promises, e como usá-las em um contexto real de uma API que acessa um banco de dados.
 
-Funções assíncronas são declaradas usando a palavra-chave `async`. Elas permitem o uso da palavra-chave `await` dentro de seu corpo, o que ajuda a lidar com Promises de forma mais fácil e legível.
+## 1. O Que São Promises?
+
+Uma **Promise** é um objeto que representa a eventual conclusão ou falha de uma operação assíncrona. Pense nela como uma "promessa" de que, em algum momento, o resultado estará disponível (ou um erro ocorrerá).
+
+### Estados de uma Promise
+
+- **Pending (Pendente)**: A operação ainda não terminou.
+- **Fulfilled (Cumprida)**: A operação terminou com sucesso e retornou um valor.
+- **Rejected (Rejeitada)**: A operação falhou e retornou um erro.
+
+### Exemplo de Promise simples
+
+```typescript
+const minhaPromise = new Promise<string>((resolve, reject) => {
+  const sucesso = true; // Simula sucesso ou falha
+
+  if (sucesso) {
+    resolve('Operação concluída com sucesso!');
+  } else {
+    reject('Houve um erro na operação.');
+  }
+});
+
+minhaPromise
+  .then(resultado => console.log(resultado))
+  .catch(erro => console.error(erro));
+````
+
+---
+
+## 2. O Que São Funções Assíncronas?
+
+Funções assíncronas são declaradas com a palavra-chave `async` e permitem usar a palavra-chave `await` para esperar a conclusão de Promises, simplificando o código assíncrono.
 
 ### Exemplo de Declaração
 
 ```typescript
 async function exemplo(): Promise<void> {
-    // Código assíncrono pode ser executado aqui
-}
-````
-
-### Como Funciona?
-
-Quando uma função assíncrona é chamada, ela retorna uma Promise. Se você retornar um valor dessa função, a Promise será resolvida com esse valor. Se você lançar um erro, a Promise será rejeitada.
-
-### Exemplo de Retorno
-
-```typescript
-async function somar(a: number, b: number): Promise<number> {
-    return a + b; // Retorna uma Promise resolvida com o valor da soma
-}
-
-somar(2, 3).then((resultado: number) => {
-    console.log(resultado); // 5
-});
-```
-
-## 2. O Que É uma Promise?
-
-Uma Promise é um objeto que representa a eventual conclusão (ou falha) de uma operação assíncrona e seu valor resultante. Uma Promise pode estar em um dos três estados:
-
-* **Pending (Pendente)**: O estado inicial, onde a operação ainda não foi concluída.
-* **Fulfilled (Cumprida)**: A operação foi concluída com sucesso.
-* **Rejected (Rejeitada)**: A operação falhou.
-
-### Criando uma Promise
-
-```typescript
-const minhaPromise: Promise<string> = new Promise((resolve, reject) => {
-    const sucesso: boolean = true; // Simulação de sucesso ou falha
-    if (sucesso) {
-        resolve('Operação bem-sucedida!');
-    } else {
-        reject('Operação falhou!');
-    }
-});
-
-minhaPromise
-    .then((resultado: string) => console.log(resultado))
-    .catch((erro: string) => console.error(erro));
-```
-
-## 3. Usando Async e Await
-
-A palavra-chave `await` é usada para esperar a resolução de uma Promise. Quando você usa `await`, o código "pausa" até que a Promise seja resolvida ou rejeitada.
-
-### Exemplo com Await
-
-```typescript
-async function buscarDados(): Promise<void> {
-    const resposta: Response = await fetch('https://api.exemplo.com/dados');
-    const dados: unknown = await resposta.json();
-    console.log(dados);
+  // código assíncrono aqui
 }
 ```
 
-### O Que Acontece Aqui:
+Quando chamamos uma função `async`, ela retorna uma Promise.
 
-1. **Chamada Fetch**: A função `buscarDados` faz uma requisição a uma API usando `fetch`.
-2. **Espera pela Resposta**: Com `await`, a execução da função é pausada até que a Promise retornada por `fetch` seja resolvida (ou rejeitada).
-3. **Processa a Resposta**: Após a resolução, a resposta é convertida em JSON.
+---
 
-## 4. Por Que Usamos Funções Assíncronas com Fetch?
+## 3. Exemplo Prático: Listar Usuários
 
-### Benefícios
-
-* **Evitar Bloqueios**: Funções assíncronas permitem que o código continue a ser executado enquanto espera pela resposta de uma requisição. Isso é crucial em aplicações web, onde a experiência do usuário deve ser fluida e responsiva.
-* **Código Mais Limpo e Legível**: O uso de `async` e `await` resulta em um código mais fácil de entender e manter do que o uso de Promises com `then` e `catch`.
-
-### Exemplo Completo com Fetch
-
-Aqui está um exemplo completo que ilustra o uso de funções assíncronas com a Fetch API:
+Veja este método de um controller que lista usuários no banco de dados. A consulta ao banco retorna uma Promise, e usamos `await` para esperar ela ser concluída.
 
 ```typescript
-async function fetchUserData(): Promise<void> {
-    try {
-        const response: Response = await fetch('https://api.exemplo.com/usuario');
-        if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
-        }
-        const userData: unknown = await response.json();
-        console.log(userData);
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            console.error('Ocorreu um erro:', error.message);
-        } else {
-            console.error('Ocorreu um erro desconhecido');
-        }
-    }
-}
+import { Request, Response } from 'express';
+import { connection } from '../config/database';
 
-fetchUserData();
+export class UserController {
+  async listUsers(req: Request, res: Response): Promise<Response> {
+    const [rows] = await connection.query('SELECT * FROM usuarios');
+    return res.status(200).json(rows);
+  }
+}
 ```
 
-### Explicação do Exemplo:
+---
 
-1. **Função Assíncrona**: A função `fetchUserData` é declarada como assíncrona para permitir o uso de `await`.
-2. **Requisição Fetch**: Dentro do bloco `try`, fazemos uma requisição à API com `fetch` e aguardamos a resposta.
-3. **Verificação de Erros**: Checamos se a resposta não está ok (código de status 2xx). Se não estiver, lançamos um erro.
-4. **Tratamento de Erro**: Se ocorrer um erro durante a requisição ou ao processar a resposta, o controle é passado para o bloco `catch`, onde o erro é capturado e registrado.
+## 4. Exemplo Prático: Criar Usuário
 
-## 5. Conclusão
+Outro método para criar um usuário no banco, usando `await` para esperar a inserção no banco ser concluída:
 
-As funções assíncronas são uma parte fundamental do JavaScript moderno, especialmente ao lidar com operações que podem levar tempo, como requisições de rede. Elas tornam o código mais fácil de entender e permitem que você escreva aplicações mais responsivas.
+```typescript
+async createUser(req: Request, res: Response): Promise<Response> {
+  const { nome, email } = req.body;
 
-## 6. Referências
+  if (!nome || !email) {
+    return res.status(400).json({ mensagem: 'Nome e e-mail obrigatórios.' });
+  }
 
-* [Documentação MDN sobre Funções Assíncronas](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Statements/async_function)
-* [Documentação MDN sobre Promises](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Using_promises)
-* [Documentação MDN sobre Fetch API](https://developer.mozilla.org/pt-BR/docs/Web/API/Fetch_API)
+  await connection.query('INSERT INTO usuarios (nome, email) VALUES (?, ?)', [nome, email]);
+
+  return res.status(201).json({ mensagem: 'Usuário criado com sucesso!' });
+}
+```
+
+---
+
+## 5. Por Que Usar Funções Assíncronas?
+
+* Evita que o servidor fique bloqueado esperando operações demoradas, como consultas ao banco.
+* O código fica mais limpo e sequencial com `async`/`await`.
+* Facilita o tratamento de erros com `try/catch`.
+
+---
+
+## 6. Tratamento de Erros com Try/Catch
+
+```typescript
+async listUsers(req: Request, res: Response): Promise<Response> {
+  try {
+    const [rows] = await connection.query('SELECT * FROM usuarios');
+    return res.status(200).json(rows);
+  } catch (error) {
+    console.error('Erro ao listar usuários:', error);
+    return res.status(500).json({ mensagem: 'Erro interno no servidor' });
+  }
+}
+```
+
+---
+
+## 7. Conclusão
+
+Promises e funções assíncronas são ferramentas essenciais para lidar com operações que podem levar tempo no desenvolvimento de APIs. Elas permitem que o servidor responda a múltiplas requisições de forma eficiente e com código mais fácil de entender.
 
 
+Se quiser, posso ajudar a preparar exercícios que misturam Promises, async/await e consultas ao banco para fixação!
+```
