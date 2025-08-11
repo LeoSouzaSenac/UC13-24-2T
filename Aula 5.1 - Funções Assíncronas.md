@@ -19,6 +19,16 @@ Uma **Promise** é um objeto que representa a eventual conclusão ou falha de um
 ### Exemplo de Promise simples
 
 ```typescript
+/*
+Dentro do construtor de uma Promise, você passa uma função que recebe dois parâmetros: resolve e reject.
+
+Eles são funções, e cada uma tem um papel:
+
+resolve: chama quando a operação assíncrona termina com sucesso. Ela "resolve" a Promise, entregando um valor para quem está esperando.
+
+reject: chama quando a operação falha. Ela "rejeita" a Promise, entregando um erro para quem está esperando.
+*/
+
 const minhaPromise = new Promise<string>((resolve, reject) => {
   const sucesso = true; // Simula sucesso ou falha
 
@@ -28,12 +38,19 @@ const minhaPromise = new Promise<string>((resolve, reject) => {
     reject('Houve um erro na operação.');
   }
 });
-
+/*
+As funções .then() e .catch() são métodos que você usa para lidar com o resultado dessa Promise.
+.then() é chamado quando a Promise é resolvida com sucesso. O que estiver dentro do .then() vai receber o resultado passado para o resolve.
+.catch() é chamado quando a Promise é rejeitada (quando alguém chama reject(erro)). O que estiver dentro do .catch() vai receber o erro passado para o reject.
+*/
 minhaPromise
   .then(resultado => console.log(resultado))
   .catch(erro => console.error(erro));
 ````
+---
 
+No entanto, normalmente, você não precisa criar Promises manualmente com new Promise(...) — isso é mais para casos específicos.
+Na maior parte do tempo, funções que fazem chamadas assíncronas (como consultar banco de dados, ler arquivos, fazer requisições HTTP) já retornam Promises prontas para usar. Então, agora que entendemos o que são promises, vamos ao que interessa.
 ---
 
 ## 2. O Que São Funções Assíncronas?
@@ -92,13 +109,51 @@ async createUser(req: Request, res: Response): Promise<Response> {
 
 ## 5. Por Que Usar Funções Assíncronas?
 
-* Evita que o servidor fique bloqueado esperando operações demoradas, como consultas ao banco.
+* Evita que o servidor fique bloqueado esperando operações demoradas, como consultas ao banco. Ou seja, se o Node estivesse executando uma operação síncrona e demorada (por exemplo, uma consulta ao banco que demora 5 segundos), ele ficaria parado, esperando essa operação terminar, sem poder atender a outras requisições enquanto isso. Imagina assim:
+ - Operação síncrona (bloqueante) é como se você fizesse uma ligação telefônica e, até a outra pessoa atender e a conversa acabar, você não pode fazer mais nada — está “preso” na ligação.
+ - Operação assíncrona (não bloqueante) é como se você fizesse a ligação e, enquanto espera a pessoa atender, você pudesse fazer outras coisas (mandar mensagens, atender outras ligações, etc.). Quando a pessoa atender, você volta para a conversa.
+
 * O código fica mais limpo e sequencial com `async`/`await`.
 * Facilita o tratamento de erros com `try/catch`.
 
 ---
 
 ## 6. Tratamento de Erros com Try/Catch
+
+### Por que usar `try/catch` sempre dentro de funções `async`?
+
+Quando usamos `await` para esperar o resultado de uma Promise, essa Promise pode ser **resolvida com sucesso** ou **rejeitada com um erro**.
+
+Se a Promise for rejeitada (por exemplo, erro ao consultar o banco, problema de conexão, dados inválidos), o erro **é lançado como uma exceção dentro da função async**.
+
+---
+
+### O que acontece se não usar `try/catch`?
+
+* O erro **não será capturado dentro da função**, e a execução da função será interrompida abruptamente.
+* O servidor pode não conseguir responder adequadamente à requisição, o que pode levar a **respostas incompletas**, **falhas silenciosas** ou até mesmo o **travamento da aplicação**.
+* É difícil controlar e informar o que deu errado para o cliente.
+
+---
+
+### Por que `try/catch` resolve isso?
+
+* O bloco `try` envolve o código que pode gerar erros.
+* Se ocorrer algum erro, ele é capturado pelo `catch`.
+* Dentro do `catch`, você pode:
+
+  * Registrar o erro para ajudar no diagnóstico (ex: `console.error`).
+  * Enviar uma resposta de erro adequada para o cliente (ex: status 500 e mensagem amigável).
+
+---
+
+### Em resumo:
+
+* **`await` pode lançar erros.**
+* **`try/catch` é a forma de capturar esses erros.**
+* Usar `try/catch` **garante que sua API responda sempre**, mesmo em casos de falhas inesperadas.
+
+
 
 ```typescript
 async listUsers(req: Request, res: Response): Promise<Response> {
@@ -117,7 +172,3 @@ async listUsers(req: Request, res: Response): Promise<Response> {
 ## 7. Conclusão
 
 Promises e funções assíncronas são ferramentas essenciais para lidar com operações que podem levar tempo no desenvolvimento de APIs. Elas permitem que o servidor responda a múltiplas requisições de forma eficiente e com código mais fácil de entender.
-
-
-Se quiser, posso ajudar a preparar exercícios que misturam Promises, async/await e consultas ao banco para fixação!
-```
