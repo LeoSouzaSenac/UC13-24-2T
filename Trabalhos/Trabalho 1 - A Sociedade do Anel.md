@@ -1,5 +1,8 @@
 ## 🧙‍♂️ **Trabalho Avaliativo — O Chamado da Sociedade do Anel**
 
+![Intro](https://tenor.com/bDGdl.gif)
+
+
 "Três Anéis para os Reis-Elfos sob este céu,
 Sete para os Senhores-Anões em seus rochosos corredores,
 Nove para os Homens Mortais fadados ao eterno sono,
@@ -8,6 +11,10 @@ Na Terra de Mordor onde as Sombras se deitam.
 Um Anel para a todos governar, Um Anel para encontrá-los,
 Um Anel para a todos trazer e na escuridão aprisioná-los
 Na Terra de Mordor onde as Sombras se deitam."
+
+
+![O Um Anel](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTI1ZmE1NmZ2MzNzY2t6M3htYjk0bWczeDl5NWxjczRqNXkyaTJreCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XgE4LlECZjw6k/giphy.gif)
+
 
 
 > \*\*"Vocês são todos convocados, jovens aprendizes de código.
@@ -34,6 +41,10 @@ Criar um **sistema de CRUD** para personagens da Terra Média, usando:
 ---
 
 ### **O Banco de Dados**
+
+
+![A Sociedade do Anel]([https://tenor.com/bDGdl.gif](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDA4dGZyeDV4NXpqZWR3aWwwczdmemp0b2pxcHRlN3lvZHppamVpeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RlZO2mKipB3u8/giphy.gif))
+
 
 Crie a tabela `personagens` com os seguintes campos:
 
@@ -73,6 +84,9 @@ Frodo sente o Um Anel querendo retornar ao seu Mestre...
   * Se for `"Balrog"` →
     `Você não vai passar!`
 
+    ![Gandalf farmando aura](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3VhNjBuZHFjbjdnaTdpajd2a2ljZjRkaXM2OWI3YnhzMWE5dW1oeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/njYrp176NQsHS/giphy.gif)
+
+
 ---
 
 #### 3️⃣ **A Rota Perdida**
@@ -98,6 +112,10 @@ Frodo sente o Um Anel querendo retornar ao seu Mestre...
 
 ### **Exemplo de uso**
 
+
+ ![Nazgûl!](https://64.media.tumblr.com/tumblr_m1yuk2t7941qbymseo1_500.gif)
+
+
 #### Criando um Nazgûl
 
 ```
@@ -120,6 +138,8 @@ Frodo sente o Um Anel chamando por seu Mestre...
 ---
 
 #### Buscando o Balrog
+
+ ![A Ruína de Durin!](https://i.redd.it/ansx63ddhsdd1.gif)
 
 ```
 GET /personagens/12
