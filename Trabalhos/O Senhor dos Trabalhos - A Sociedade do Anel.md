@@ -80,7 +80,7 @@ Frodo sente o Um Anel querendo retornar ao seu Mestre...
 
 | Tipo do Personagem | Mensagem no Console                   |
 | ------------------ | ------------------------------------- |
-| Sociedade          | Pode passar pela Ponte de Khazad-dûm. |
+| Sociedade          | Corram seus tolos!                    |
 | Nazgûl             | Os Nazgûl não estão em Moria.         |
 | Balrog             | Você não vai passar!                  |
 
@@ -158,7 +158,7 @@ GET /personagens/1
 **Console:**
 
 ```
-Pode passar pela Ponte de Khazad-dûm.
+Corram seus tolos!
 ```
 
 ---
