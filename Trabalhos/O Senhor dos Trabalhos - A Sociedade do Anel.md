@@ -1,6 +1,6 @@
 ## 🧙‍♂️ **O Senhor dos Trabalhos —  Sociedade do Anel**
 
-![Intro](https://tenor.com/bDGdl.gif)
+![Intro](https://c.tenor.com/9DVw702w7QAAAAAd/tenor.gif)
 
 ```
 "Três Anéis para os Reis-Elfos sob este céu,
