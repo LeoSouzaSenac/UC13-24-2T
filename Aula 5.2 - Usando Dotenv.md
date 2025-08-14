@@ -76,7 +76,7 @@ export const env = {
 Exemplo de conexão com MySQL usando `mysql2/promise`:
 
 ```typescript
-// src/database/connection.ts
+// src/config/connection.ts
 import mysql from "mysql2/promise";
 import { env } from "../config/env";
 
