@@ -1,77 +1,135 @@
-# 🎓 **Aula 6 – Realizando consultas com ORM**
+# 🎓 **Aula 6 – Criando e Consultando com ORM (TypeORM + MVC)**
 
-## 🎯 **Objetivos da Aula**
+## 🎯 Objetivos da Aula
 
-* Entender o que é um **ORM** e como o TypeORM facilita o trabalho com banco de dados.
-* Comparar o uso de SQL manual (`mysql2/promise`) com ORM.
-* Criar entidades e mapear para tabelas com **decorators**.
-* Implementar **relacionamentos** (One-to-Many, Many-to-One) no TypeORM.
-* Usar `relations` para simular **JOINs** automaticamente.
+- Entender o que é um **ORM** e como o **TypeORM** facilita o trabalho com banco de dados.
+- Comparar o uso de SQL manual (`mysql2/promise`) com ORM.
+- Criar entidades e mapear para tabelas com **decorators**.
+- Implementar **relacionamentos** (One-to-Many, Many-to-One) no TypeORM.
+- Usar `relations` para simular **JOINs** automaticamente.
+- Estruturar um projeto **MVC sem View** (Model, Controller, Routes).
 
 ---
 
 ## 🧩 O que é um ORM?
 
-ORM significa **Object-Relational Mapping** (*Mapeamento Objeto-Relacional*).
-Basicamente, é uma ferramenta que permite interagir com o banco de dados **usando objetos e métodos** ao invés de escrever SQL puro.
+**ORM** significa **Object-Relational Mapping** (*Mapeamento Objeto-Relacional*).
 
-💡 **Por que usar ORM?**
+📌 É uma forma de interagir com o banco de dados **usando objetos e métodos**, sem precisar escrever SQL puro o tempo todo.
 
-* 📉 Menos repetição de código SQL
-* 🛡️ Menos risco de SQL Injection (ele faz o tratamento automático)
-* 🗂️ Melhor organização do código
-* 🔄 Portabilidade entre diferentes bancos de dados
+**Vantagens de usar ORM:**
+- 📉 Menos repetição de código SQL.
+- 🛡️ Menos risco de SQL Injection (tratamento automático).
+- 🗂️ Melhor organização do código.
+- 🔄 Portabilidade entre bancos de dados diferentes.
 
-## 🧠 **Retomando o que já aprendemos**
+---
 
-Até agora:
+## 🧠 Diferença: SQL manual vs TypeORM
 
-* Usamos `mysql2/promise` para **escrever queries SQL diretamente**.
-* Controlávamos tudo: desde o `SELECT` até as condições, paginação e `JOINs`.
-
-Exemplo no **mysql2/promise**:
-
+### No **mysql2/promise** (SQL manual):
 ```ts
 const [rows] = await connection.query(
   'SELECT * FROM usuarios WHERE id = ?',
   [id]
 );
-```
+````
 
----
-
-Agora, no **TypeORM**:
+### No **TypeORM**:
 
 ```ts
 const user = await userRepository.findOneBy({ id });
 ```
 
-💡 A diferença:
-
-* No mysql2 → você escreve o SQL manualmente.
-* No TypeORM → você descreve *o que quer*, e ele gera o SQL.
+💡 No SQL manual → você escreve a query.
+💡 No ORM → você descreve o que quer, e ele gera a query para você.
 
 ---
 
-## 🏗️ **Configurando o TypeORM**
+## 🏗️ Criando o Projeto do Zero
 
-O TypeORM é um ORM para JavaScript e TypeScript que facilita a interação com bancos de dados relacionais de forma orientada a objetos, através do uso de decoradores.
+### 1 Criar pasta do projeto
 
-## **🤔 Como iniciar um projeto com TypeORM?**
+```bash
+mkdir 14-08 && cd 14-08
+```
 
-Instalar dependências:
+### 2 Iniciar o projeto
+
+```bash
+npm init -y
+```
+
+### 3 Instalar dependências
 
 ```bash
 npm install express typeorm reflect-metadata mysql2 dotenv
-npm install -D typescript @types/express @types/node
+npm install -D typescript @types/node @types/express ts-node-dev
 ```
 
-Arquivo `src/config/data-source.ts`:
+### 4 Criar o `tsconfig.json`
+
+```bash
+npx tsc --init
+```
+
+---
+
+## ⚙️ Configurando o TypeScript
+
+Coloque isso dentro do **`tsconfig.json`**:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+```
+
+**Explicando:**
+
+* `experimentalDecorators` → habilita uso de `@Entity`, `@Column`, etc.
+* `emitDecoratorMetadata` → necessário para o TypeORM saber tipos das colunas.
+* `strictPropertyInitialization: false` → evita erro em propriedades que o ORM preenche sozinho.
+
+---
+
+## 📂 Estrutura de Pastas
+
+```
+src/
+ ├── config/
+ │    └── data-source.ts    # Configuração de conexão com o banco
+ ├── controllers/           # Lógica de negócio (Controllers)
+ ├── models/                # Entidades do banco (Models)
+ ├── routes/                # Arquivos de rotas
+ ├── server.ts               # Ponto de entrada do servidor
+ └── .env                    # Variáveis de ambiente
+```
+
+---
+
+## 🔑 Configurando a conexão com o banco
+
+Arquivo **`src/config/data-source.ts`**:
 
 ```ts
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import * as dotenv from "dotenv";
+import { User } from '../models/User';
+import { Post } from '../models/Post';
 
 dotenv.config();
 
@@ -84,46 +142,43 @@ export const AppDataSource = new DataSource({
     username: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
-    synchronize: true, // CUIDADO! Apenas em desenvolvimento (em ambiente de produção será false)
+    synchronize: true, // Apenas em desenvolvimento, isso cria todas as tabelas para nós
     logging: true,
-    entities: ['src/models/*.ts'],
+    entities: [User, Post], // Entidades registradas
 });
 ```
 
 ---
 
-## 📦 **Criando Entidades**
+## 🧍 Criando a Entidade User
 
-O TypeORM usa **classes** para representar tabelas.
-
-### `src/models/User.ts`
+Arquivo **`src/models/User.ts`**:
 
 ```ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Post } from './Post';
 
-@Entity('users') // Informa para o ORM que essa classe será uma Entidade do Banco de Dados
+@Entity('users')
 export class User {
-    @PrimaryGeneratedColumn() // Define que o campo será uma Chave Primária (PK) e Auto Incrementável (AI)
+    @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 100, nullable: false }) // Define que o tamanho do campo é de 100 caracteres, e não pode ser nulo.
+    @Column({ length: 100, nullable: false })
     name: string;
 
-    @Column({ unique: true }) // Define que o campo é Único (UK)
+    @Column({ unique: true })
     email: string;
 
-    /*
-        - Indica para o ORM que existe uma relação de 1 para Muitos (1:N) com a Entidade Posts.
-        - Essa Relação será indicada da outra entidade também, e o ORM irá criar a Chave Estrangeira (FK) automaticamente.
-        - Essa prática é extremamente importante para que possam ser realizadas consultas em múltiplas tabelas posteriormente.
-    */
     @OneToMany(() => Post, post => post.user)
     posts: Post[];
 }
 ```
 
-### `src/models/Post.ts`
+---
+
+## 📝 Criando a Entidade Post
+
+Arquivo **`src/models/Post.ts`**:
 
 ```ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
@@ -134,21 +189,9 @@ export class Post {
     @PrimaryGeneratedColumn()
     id: number;
 
-    /*
-        - Define o campo como sendo um VARCHAR.
-        - Essa definição é opcional pois o ORM identifica pelo tipo da propriedade no TypeScript.
-    */
     @Column({ type: "varchar", length: 100, nullable: false })
     title: string;
 
-
-    /*
-        - Indica para o ORM que existe uma relação de Muitos para 1 (N:1) com a Entidade Users.
-        - Essa Relação foi indicada da outra entidade também, e o ORM irá criar a Chave Estrangeira (FK) automaticamente.
-        - Sempre que ouver relacões entre entidades precisamos declarar a "ida e a volta".
-        - Ou seja, se a relação entre Users e Posts for de 1:N a relação entre Posts e Users será de N:1.
-        - Essa referência cruzada é obrigatória para que o ORM crie corretamente as Chaves Estrangeiras (FK)
-    */
     @ManyToOne(() => User, user => user.posts)
     user: User;
 }
@@ -156,74 +199,51 @@ export class Post {
 
 ---
 
-## 🔗 **Relacionamentos e JOINs**
+## 🎮 Criando Controllers
 
-No MySQL puro, um **INNER JOIN** ficaria assim:
-
-```sql
-SELECT u.*, p.*
-FROM users u
-INNER JOIN posts p ON p.user_id = u.id;
-```
-
-No TypeORM, a mesma coisa:
-
-```ts
-const users = await userRepository.find({
-    relations: ['posts']
-});
-```
-
-* `relations` → diz quais tabelas devem ser carregadas junto.
-* TypeORM **gera o JOIN automaticamente**.
-
----
-
-## 🚦 **Criando Controllers**
-
-### `src/controllers/UserController.ts`
+Arquivo **`src/controllers/UserController.ts`**:
 
 ```ts
 import { Request, Response } from 'express';
-import { AppDataSource } from '../database/data-source';
+import { AppDataSource } from '../config/data-source';
 import { User } from '../models/User';
 
-const userRepository = AppDataSource.getRepository(User);
-
 export class UserController {
+    private userRepository = AppDataSource.getRepository(User);
+
     async list(req: Request, res: Response) {
-        const users = await userRepository.find({ relations: ['posts'] });
+        const users = await this.userRepository.find({ relations: ['posts'] });
         return res.json(users);
     }
 
     async create(req: Request, res: Response) {
         const { name, email } = req.body;
-        const user = userRepository.create({ name, email });
-        await userRepository.save(user);
+        const user = this.userRepository.create({ name, email });
+        await this.userRepository.save(user);
         return res.status(201).json(user);
     }
 }
 ```
 
-### `src/controllers/PostController.ts`
+Arquivo **`src/controllers/PostController.ts`**:
 
 ```ts
 import { Request, Response } from 'express';
-import { AppDataSource } from '../database/data-source';
+import { AppDataSource } from '../config/data-source';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
 
-const postRepository = AppDataSource.getRepository(Post);
-const userRepository = AppDataSource.getRepository(User);
-
 export class PostController {
+    private postRepository = AppDataSource.getRepository(Post);
+    private userRepository = AppDataSource.getRepository(User);
+
     async create(req: Request, res: Response) {
         const { title, userId } = req.body;
-        const user = await userRepository.findOneBy({ id: userId });
+        const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        const post = postRepository.create({ title, user });
-        await postRepository.save(post);
+        const post = this.postRepository.create({ title, user });
+        await this.postRepository.save(post);
         return res.status(201).json(post);
     }
 }
@@ -231,9 +251,9 @@ export class PostController {
 
 ---
 
-## 🌐 **Rotas**
+## 🌐 Criando as Rotas
 
-`src/routes/index.ts`
+Arquivo **`src/routes/index.ts`**:
 
 ```ts
 import { Router } from 'express';
@@ -244,33 +264,69 @@ const routes = Router();
 const userController = new UserController();
 const postController = new PostController();
 
-routes.get('/users', userController.list);
-routes.post('/users', userController.create);
-
-routes.post('/posts', postController.create);
+routes.get('/users', (req, res) => userController.list(req, res));
+routes.post('/users', (req, res) => userController.create(req, res));
+routes.post('/posts', (req, res) => postController.create(req, res));
 
 export default routes;
 ```
 
 ---
 
-## 📝 **Exercícios Práticos**
+## 🚀 Criando o Servidor
+
+Arquivo **`src/server.ts`**:
+
+```ts
+import "reflect-metadata";
+import express, { Application } from "express";
+import router from "./routes";
+import { AppDataSource } from "./config/data-source";
+
+const app: Application = express();
+const PORTA: number = 3000;
+
+app.use(express.json());
+
+AppDataSource.initialize()
+    .then(() => {
+        console.log("📦 Banco conectado com sucesso");
+        app.use(router);
+
+        app.listen(PORTA, () => {
+            console.log(`🚀 Servidor rodando na porta ${PORTA}`);
+        });
+    })
+    .catch((err) => console.error("❌ Erro ao conectar no banco:", err));
+```
+
+---
+
+## 📄 Arquivo `.env`
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=root
+DB_NAME=meubanco
+```
+
+---
+
+## 📝 Exercícios Práticos
 
 1. Criar as entidades `Category` e `Product`.
-2. Relacione `Category` com `Product` (One-to-Many).
-3. Criar rota `/products` que já traga junto a categoria (usando `relations`).
+2. Relacionar `Category` com `Product` (One-to-Many).
+3. Criar rota `/products` que traga a categoria junto (`relations`).
 4. Criar rota `/users/posts` que traga todos usuários e seus posts.
 
 ---
 
-## ✅ **Resumo da Aula**
+## ✅ Resumo
 
-* ORM = camada que converte **objetos/classe** em **tabelas**.
+* ORM = converte objetos/classes em tabelas.
 * TypeORM usa **decorators** para mapear tabelas.
-* `relations` carrega dados de outras tabelas (JOIN).
-* Relacionamentos no TypeORM:
-
-  * `@OneToMany`
-  * `@ManyToOne`
-
-* Dá pra fazer tudo que fizemos com SQL puro, mas com menos código repetitivo.
+* Estrutura **MVC sem View** → separa Models, Controllers e Rotas.
+* `relations` carrega dados relacionados (JOIN).
+* Sempre inicializar o `DataSource` antes de usar o repositório.
