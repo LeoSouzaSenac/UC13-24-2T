@@ -96,7 +96,7 @@ export const connection = mysql.createPool({
 ```typescript
 // src/index.ts
 import express, { Application, Request, Response } from "express";
-import { connection } from "./database/connection";
+import { connection } from "./config/connection";
 
 const app: Application = express();
 app.use(express.json());
