@@ -386,9 +386,9 @@ const routes = Router();
 const userController = new UserController();
 const postController = new PostController();
 
-routes.get('/users', (req, res) => userController.list(req, res));
-routes.post('/users', (req, res) => userController.create(req, res));
-routes.post('/posts', (req, res) => postController.create(req, res));
+routes.get('/users', userController.list);
+routes.post('/users', userController.create);
+routes.post('/posts', postController.create);
 
 export default routes;
 ```
@@ -409,7 +409,9 @@ const app: Application = express();
 const PORTA: number = 3000;
 
 app.use(express.json());
-
+/*
+  .initialize() é um método do ORM que inicia a conexão com o banco (que nem fazíamos com o createPool() da bilioteca do mysql2) e preparar todos os recursos antes de usar. Abre a conexão com o banco usando as configurações (host, porta, usuário, senha, banco), carrega as entidades (models/tabelas), executa sincronização (se synchronize: true estiver definido), que é o que cria as tabelas. Initialize é assíncrono, portanto retorna uma Promise. O que fica dentro de .then() é o que acontece se der certo, e o que fica no .catch() é o que acontece se houver erro.
+*/
 AppDataSource.initialize()
     .then(() => {
         console.log("📦 Banco conectado com sucesso");
