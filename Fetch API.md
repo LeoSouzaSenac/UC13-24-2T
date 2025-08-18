@@ -34,37 +34,20 @@ O **`fetch` é usado para…** 👇
 Resumindo: o `fetch` é a **ponte entre o navegador (ou React) e um servidor/API** 🚀.
 
 ---
-
-## Exemplo 1: Usando `.then()`
-
+## Sintaxe
 ```typescript
-// Definindo o tipo esperado da API do ViaCEP
-interface Endereco {
-  cep: string;
-  logradouro: string;
-  bairro: string;
-  localidade: string;
-  uf: string;
-}
-
-fetch("https://viacep.com.br/ws/01001000/json/")
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error("Erro na requisição");
-    }
-    return response.json();
-  })
-  .then((data: Endereco) => {
-    console.log("Endereço:", data);
-  })
-  .catch((error) => {
-    console.error("Erro:", error);
-  });
+fetch(
+  "URL_da_API",   // input: a rota que você quer acessar
+  {
+    method: "MÉTODO_HTTP",   // GET, POST, PUT, DELETE
+    headers: { ... },        // cabeçalhos da requisição (opcional)
+    body: JSON.stringify(...) // dados enviados (opcional, só para POST/PUT/PATCH)
+  }
+)
 ```
 
----
 
-## Exemplo 2: Usando `async/await`
+## Exemplo: Usando `async/await`
 
 ```typescript
 interface Endereco {
@@ -77,7 +60,16 @@ interface Endereco {
 
 async function buscarEndereco(cep: string): Promise<void> {
   try {
-    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    // a função fetch recebe como parâmetro a URL da requisição
+    // e como segundo parâmetro o objeto com as opções
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+      method: "GET", // Método HTTP (GET, POST, PUT, DELETE, etc)
+      /* Headers são informações adicionais que você envia junto com a requisição ou recebe na resposta. Eles não são o corpo da requisição, mas são informações que descrevem como a requisição deve ser tratada.
+        Podem informar o tipo de dado enviado ou esperado (JSON, por exemplo), informações de autenticação, idioma, etc
+*/
+      headers: {
+        "Content-Type": "application/json" // Tipo de dado que esperamos receber
+      });
 
     if (!response.ok) {
       throw new Error("Erro na requisição");
@@ -113,6 +105,7 @@ async function cadastrarUsuario(usuario: Usuario): Promise<void> {
       headers: {
         "Content-Type": "application/json",
       },
+    // JSON.stringify(usuario) converte os dados, que estão em um objeto JavaScript (exemplo: { nome: "Maria", idade: 25 }), para uma string JSON (exemplo: { "nome": "Maria", "idade": 25 })
       body: JSON.stringify(usuario),
     });
 
