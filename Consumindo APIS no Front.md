@@ -60,7 +60,7 @@ Substitua/crie os arquivos abaixo com o conteúdo indicado.
 `fetch` é a **API nativa** dos navegadores para fazer **requisições HTTP** (GET, POST, etc.).
 
 * **Retorno**: `fetch(url)` devolve uma **Promise** que resolve para um **objeto `Response`**.
-* **Status HTTP**: você confere com `response.ok` (true para 2xx) e `response.status`.
+* **Status HTTP**: você confere com `response.ok`  e `response.status`.
 * **Corpo da resposta**: converta para JSON com `await response.json()`.
 * **Erros**: erros de rede disparam `catch`. Erros HTTP (404/500) **não** disparam `catch` automaticamente — por isso sempre cheque `response.ok`.
 
@@ -206,6 +206,11 @@ export default function App() {
   function handleCepChange(e) {
     // Mantém apenas números e limita o CEP a 8 caracteres
     // e.target.value = valor digitado no input
+    // Quando você digita algo no input, o navegador gera um evento
+    // Esse evento é enviado automaticamente para a função handleCepChange
+    // 'e' representa esse evento
+    // 'target' é o elemento HTML que disparou o evento (por exemplo, o input)
+    // 'value' é a propriedade do elemento input que contém o texto que o usuário digitou
     setCep(e.target.value.replace(/\D/g, '').slice(0, 8)) 
   }
 
@@ -290,6 +295,7 @@ export default function App() {
   )
 }
 
+
 ```
 
 ### `src/App.css` (opcional, aqui vazio só para exemplo)
@@ -318,7 +324,7 @@ export default function App() {
 
 * **Valide** o CEP antes da requisição (8 dígitos).
 * **`try/catch`** para capturar erros de rede.
-* **Checar `response.ok`** para tratar 4xx/5xx.
+* **Checar `response.ok`** para tratar status 400 e algo e 500 e algo.
 * A API ViaCEP pode responder com **`{ erro: true }`** — trate esse caso.
 * Opcional: implemente **timeout** com `AbortController` se quiser limitar o tempo de espera.
 
