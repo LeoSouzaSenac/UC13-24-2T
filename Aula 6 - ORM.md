@@ -440,10 +440,32 @@ DB_NAME=meubanco
 
 ## 📝 Exercícios Práticos
 
-1. Criar as entidades `Category` e `Product`.
-2. Relacionar `Category` com `Product` (One-to-Many).
-3. Criar rota `/products` que traga a categoria junto (`relations`).
-4. Criar rota `/users/posts` que traga todos usuários e seus posts.
+1. **Crie a entidade `Category`**, com pelo menos os seguintes campos:
+
+   * `id`: número, chave primária, auto-incremento.
+   * `name`: string, nome da categoria.
+
+2. **Crie a entidade `Product`**, com os seguintes campos:
+
+   * `id`: número, chave primária, auto-incremento.
+   * `name`: string, nome do produto.
+   * `price`: número, preço do produto.
+   * `category`: referência para a entidade `Category` (ManyToOne).
+
+3. **Configure o relacionamento entre `Category` e `Product`**:
+
+   * Uma categoria pode ter **muitos produtos**.
+   * Um produto pertence a **uma única categoria**.
+
+4. **Crie uma rota `GET /products`**:
+
+   * Deve retornar todos os produtos cadastrados.
+   * Cada produto deve incluir os dados da sua **categoria associada** usando `relations`.
+
+5. **Crie também uma rota `POST /categories` e `POST /products`**:
+   
+   * para cadastrar novos dados no banco.
+
 
 ---
 
