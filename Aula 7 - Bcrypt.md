@@ -208,6 +208,8 @@ export class User {
 
 ## 6️⃣ Criar UserService
 
+A camada Service vontém a lógica de negócio do seu sistema. A Service sabe como criar, atualizar, deletar, listar, validar dados, criptografar senha, etc. Não se preocupa com HTTP, apenas com o que o sistema precisa fazer.
+
 **src/services/UserService.ts**
 
 ```ts
@@ -315,6 +317,13 @@ async update(id: number, data: Partial<User>) {
 
 ## 7️⃣ Criar UserController
 
+O controller é responsável por receber a requisição (HTTP request) e enviar a resposta (HTTP response).
+Os métodos aqui não devem conter lógica de negócio complexa, apenas devem:
+
+- Receber os dados do req.body, req.params ou req.query.
+- Chamar a camada de Service para executar a lógica.
+- Retornar o resultado para o cliente (res.json, res.status, etc).
+- 
 **src/controllers/UserController.ts**
 
 ```ts
