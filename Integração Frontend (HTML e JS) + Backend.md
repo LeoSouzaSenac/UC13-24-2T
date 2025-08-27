@@ -155,7 +155,7 @@ O arquivo `pages/login.html` terá um formulário simples para login de usuário
 
 ---
 
-## 🔹 Criando a página de login
+## 🔹 Criando a o script de login
 
 O arquivo `js/login.js` acessa a rota de login e salva o token em localstorage:
 
@@ -216,7 +216,93 @@ document.getElementById("formCadastro").addEventListener("submit", async functio
 4. O frontend mostra a resposta na tela.
 
 ---
+## 🔹 Criando a página de profile
 
+O arquivo `pages/login.html` terá um formulário simples para login de usuários:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil do Usuário</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  
+  <form id="formPerfil">
+    <label for="nome">Nome:</label><br>
+    <input type="text" id="nome" name="nome"><br><br>
+
+    <label for="email">E-mail:</label><br>
+    <input type="email" id="email" name="email"><br><br>
+
+    <label for="senha">Senha:</label><br>
+    <input type="password" id="senha" name="senha" placeholder="Digite a nova senha"><br><br>
+
+    <button type="button" id="btnAtualizar">Atualizar</button>
+    <button type="button" id="btnDeletar">Deletar</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <script src="../js/profile.js"></script>
+</body>
+</html>
+
+
+````
+
+---
+
+## 🔹 Criando o script de profile
+
+O arquivo `js/profile.js` acessa a rota dque pega as informações de usuário:
+
+```js
+// Função para carregar dados do usuário
+async function carregarPerfil() {
+    const token = localStorage.getItem("token"); // pega token do localStorage
+
+    if (!token) {
+      document.getElementById("mensagem").textContent = "Usuário não autenticado!";
+      document.getElementById("mensagem").style.color = "red";
+      return;
+    }
+
+    try {
+      const resposta = await fetch("http://localhost:3000/users/me", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token // envia token
+        }
+      });
+
+      if (!resposta.ok) {
+        const erro = await resposta.text();
+        throw new Error(erro);
+      }
+
+      const user = await resposta.json();
+
+      // Preenche os campos com os dados retornados
+      document.getElementById("nome").value = user.name || "";
+      document.getElementById("email").value = user.email || "";
+
+    } catch (erro) {
+      console.error("Erro:", erro);
+      document.getElementById("mensagem").textContent = "Erro ao carregar perfil: " + erro.message;
+      document.getElementById("mensagem").style.color = "red";
+    }
+  }
+
+  // Carrega o perfil assim que a página é aberta
+  window.addEventListener("DOMContentLoaded", carregarPerfil);
+
+````
+
+---
 
 
 ## ✅ Conclusão
