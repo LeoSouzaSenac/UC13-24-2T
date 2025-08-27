@@ -72,6 +72,3 @@ Esses cabeçalhos dizem ao navegador que é seguro permitir a requisição.
 
 ---
 
-```
-
-Quer que eu crie também um **exemplo prático em diagrama** mostrando o fluxo de requisição com e sem CORS? (posso fazer em Markdown com ASCII).
