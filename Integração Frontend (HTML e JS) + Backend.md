@@ -44,11 +44,10 @@ O arquivo `index.html` terá um formulário simples para cadastrar usuários:
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro de Usuário</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>Formulário Simples</title>
+  <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-  <h2>Cadastro de Usuário</h2>
   <form id="formCadastro">
     <label for="nome">Nome:</label><br>
     <input type="text" id="nome" name="nome" required><br><br>
@@ -59,14 +58,18 @@ O arquivo `index.html` terá um formulário simples para cadastrar usuários:
     <label for="senha">Senha:</label><br>
     <input type="password" id="senha" name="senha" required><br><br>
 
-    <button type="submit">Cadastrar</button>
+    <button type="submit">Enviar</button>
+    <p>Já possui conta? <a href="pages/login.html">Faça login</a></p>
+    <p id="mensagem"></p>
   </form>
-
-  <p id="mensagem"></p>
-
-  <script src="js/index.js"></script>
+  
+  <!-- Botão de login -->
+  
+ <script src="js/index.js"></script>
+  
 </body>
 </html>
+
 ````
 
 ---
@@ -115,6 +118,93 @@ document.getElementById("formCadastro").addEventListener("submit", async functio
   }
 });
 ```
+
+---
+
+## 🔹 Criando a página de login
+
+O arquivo `pages/login.html` terá um formulário simples para login de usuários:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário Simples</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <form id="formCadastro">
+    
+    <label for="email">E-mail:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="senha">Senha:</label><br>
+    <input type="password" id="senha" name="senha" required><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+  <p id="mensagem"></p>
+ <script src="../js/login.js"></script>
+  
+</body>
+</html>
+
+
+````
+
+---
+
+## 🔹 Criando a página de login
+
+O arquivo `js/login.js` acessa a rota de login e salva o token em localstorage:
+
+```js
+// Seleciona o formulário de login
+document.getElementById("formCadastro").addEventListener("submit", async function(event) {
+    event.preventDefault(); // Impede o recarregamento da página
+  
+    // Captura os valores do formulário
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("senha").value;
+  
+    try {
+      // Faz a requisição para o endpoint de login
+      const resposta = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password }) // Envia os dados como JSON
+      });
+  
+      if (!resposta.ok) {
+        const erro = await resposta.text();
+        throw new Error(erro);
+      }
+  
+      // Converte a resposta em JSON
+      const dados = await resposta.json();
+  
+      // O token retornado pelo servidor
+      const token = dados.token;
+  
+      // Armazena o token no localStorage
+      localStorage.setItem("token", token);
+  
+      // Exibe mensagem de sucesso
+      document.getElementById("mensagem").textContent = "Login realizado com sucesso!";
+      document.getElementById("mensagem").style.color = "green";
+  
+    } catch (erro) {
+      console.error("Erro:", erro);
+      document.getElementById("mensagem").textContent = "Erro: " + erro.message;
+      document.getElementById("mensagem").style.color = "red";
+    }
+  });
+  
+
+````
 
 ---
 
