@@ -1,12 +1,13 @@
 # DTOs e Validação de Dados no Backend TypeScript
 
-Neste material, vamos aprender o que são **DTOs (Data Transfer Objects)**, como aplicar **validação de dados**, e como ambos são usados para criar um backend **mais seguro, organizado e confiável**.
+Neste material, vamos aprender o que são **DTOs (Data Transfer Objects)**, como aplicar **validação de dados**, e como ambos são usados para criar um backend **mais seguro, organizado e confiável**.  
+Além disso, vamos ver **exemplos reais de problemas que podem acontecer** se não aplicarmos essas práticas.
 
 ---
 
 ## 1️⃣ O que é um DTO?
 
-**DTO (Data Transfer Object)** é um **objeto que define o formato dos dados** que entram ou saem da sua API.  
+**DTO (Data Transfer Object)** é um **objeto que define o formato dos dados** que entram ou saem da sua API.
 
 Ele serve para:
 
@@ -37,6 +38,21 @@ export class UserResponseDTO {
 }
 ```
 
+💡 **Imagine o cenário:**
+Um usuário malicioso poderia tentar enviar:
+
+```json
+{
+  "name": "Leo",
+  "email": "leo@teste.com",
+  "password": "123456",
+  "isAdmin": true
+}
+```
+
+Se você não usar DTO + validação, **esse campo extra (`isAdmin`) poderia entrar no seu banco ou dar problemas no backend**.
+Com DTO + validação, **somente `name`, `email` e `password` são aceitos**.
+
 ---
 
 ## 2️⃣ O que é validação de dados?
@@ -49,6 +65,25 @@ Ela ajuda a:
 * Garantir que a API não quebre com payloads inesperados.
 * Dar respostas claras ao usuário quando algo está errado.
 * Aumentar a **segurança** do backend.
+
+💡 **Exemplo prático:**
+Se alguém tentar criar um usuário com:
+
+```json
+{
+  "name": "",
+  "email": "leo.com",
+  "password": "123"
+}
+```
+
+A validação vai retornar:
+
+* Nome obrigatório
+* E-mail inválido
+* Senha muito curta
+
+Sem validação, o backend poderia **criar um usuário com dados incorretos**, ou até quebrar se algum campo for usado de forma inesperada.
 
 ---
 
@@ -90,6 +125,21 @@ export class CreateUserDTO {
   password: string;
 }
 ```
+
+💡 **Exemplo prático:**
+
+* Usuário envia `{ name: "", email: "leo.com", password: "123" }`
+* O middleware retorna:
+
+```json
+[
+  { "name": "O nome é obrigatório" },
+  { "email": "E-mail inválido" },
+  { "password": "Senha deve ter no mínimo 6 caracteres" }
+]
+```
+
+---
 
 ### Middleware de validação:
 
@@ -186,24 +236,46 @@ router.post("/users", validateSchema(createUserSchema), createUser);
 export default router;
 ```
 
+💡 **Exemplo prático:**
+
+* Frontend envia `{ name: "", email: "teste@", password: "123" }`
+* Middleware retorna erro com mensagens detalhadas, evitando que dados inválidos cheguem ao serviço.
+
 ---
 
-## 6️⃣ Resumo prático
+## 6️⃣ Por que não basta apenas TypeScript?
+
+TypeScript **valida tipos em tempo de compilação**, mas **não existe em runtime**.
+Se alguém enviar dados diretamente via Postman, Insomnia, app móvel ou curl, **TypeScript sozinho não impede que dados errados entrem**.
+
+* **TypeScript = proteção durante o desenvolvimento**
+* **DTO + validação = proteção em runtime, quando a API já está rodando**
+
+💡 Analogia:
+
+* **TS = cinto de segurança enquanto você escreve o carro**
+* **DTO + validação = airbag que protege quando o carro já está rodando**
+
+---
+
+## 7️⃣ Resumo prático
 
 1. **DTO** → define o formato dos dados que entram/saem.
 2. **Validação** → garante que os dados recebidos seguem o DTO.
-3. Bibliotecas recomendadas:
+3. **TypeScript sozinho não valida dados externos** → precisa de validação em runtime.
+4. Bibliotecas recomendadas:
 
    * `class-validator` → ótimo com classes e decoradores.
    * `zod` → ótimo com funções e tipos TS.
-4. Sempre **use DTO + validação** para manter sua API **segura, organizada e confiável**.
+5. Sempre **use DTO + validação** para manter a API **segura, organizada e confiável**.
 
 ---
 
-## 7️⃣ Dica para os alunos
+## 8️⃣ Dica para os alunos
 
 > Pense no DTO como o **contrato** e na validação como a **fiscalização do contrato**.
-> Assim, nada de dados inesperados entra na sua aplicação, e o backend fica mais robusto.
+> Assim, nada de dados inesperados entra na sua aplicação, o backend fica robusto e os erros são tratados de forma clara.
+
+```
 
 ---
-
