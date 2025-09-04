@@ -39,19 +39,16 @@ export class UserResponseDTO {
 ```
 
 💡 **Imagine o cenário:**
-Um usuário malicioso poderia tentar enviar:
+Um usuário poderia tentar enviar:
 
 ```json
-{
-  "name": "Leo",
-  "email": "leo@teste.com",
-  "password": "123456",
-  "isAdmin": true
-}
+{ "name": "", "email": "leo@", "password": "123" }
+
 ```
 
-Se você não usar DTO + validação, **esse campo extra (`isAdmin`) poderia entrar no seu banco ou dar problemas no backend**.
-Com DTO + validação, **somente `name`, `email` e `password` são aceitos**.
+Sem validação, você iria salvar ou processar esses dados ruins.
+
+
 
 ---
 
@@ -62,7 +59,7 @@ Com DTO + validação, **somente `name`, `email` e `password` são aceitos**.
 Ela ajuda a:
 
 * Evitar que dados inválidos entrem no banco.
-* Garantir que a API não quebre com payloads inesperados.
+* Garantir que a API não quebre com payloads inesperados, que é quando o cliente envia algo diferente do que você espera (campos a mais no body, por exemplo)
 * Dar respostas claras ao usuário quando algo está errado.
 * Aumentar a **segurança** do backend.
 
@@ -98,6 +95,84 @@ Sem validação, o backend poderia **criar um usuário com dados incorretos**, o
 | --------- | ------------------------------------------------------------- |
 | DTO       | Define **quais campos e tipos** a API espera                  |
 | Validação | Garante que os **dados enviados respeitam o contrato** do DTO |
+
+---
+
+## Por que usar **classes** e não **interfaces** para DTOs
+
+### 1️⃣ Interfaces só existem em **tempo de desenvolvimento**
+
+```ts
+interface CreateUserDTO {
+  name: string;
+  email: string;
+  password: string;
+}
+```
+
+* ✅ TypeScript vai verificar os tipos enquanto você escreve o código.
+* ❌ Mas **em runtime (quando a aplicação está rodando)**, a interface **não existe**, ou seja, não é possível inspecionar ou validar os dados recebidos.
+
+💡 Exemplo prático:
+
+```ts
+// req.body = { name: "Leo", email: "leo@teste.com", password: "123456", isAdmin: true }
+const user: CreateUserDTO = req.body;
+
+console.log(user.isAdmin); // existe, mesmo que não esteja na interface!
+```
+
+Mesmo que você defina os tipos, **qualquer campo extra enviado pelo cliente ainda vai existir no objeto**, porque interfaces não protegem em runtime.
+
+---
+
+### 2️⃣ Classes existem em **runtime**
+
+```ts
+import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
+
+export class CreateUserDTO {
+  @IsNotEmpty() name: string;
+  @IsEmail() email: string;
+  @MinLength(6) password: string;
+}
+```
+
+* ✅ Bibliotecas como `class-validator` podem **inspecionar os objetos em runtime** e aplicar validações.
+* ✅ Você ainda mantém os tipos do TypeScript.
+* ✅ Campos extras enviados pelo cliente **não passam pela validação** e não entram no seu DTO.
+
+💡 Exemplo prático:
+
+Se o cliente enviar:
+
+```json
+{
+  "name": "",
+  "email": "leo.com",
+  "password": "123",
+  "isAdmin": true
+}
+```
+
+* O middleware de validação vai retornar erro, indicando:
+
+  * `name` obrigatório
+  * `email` inválido
+  * `password` muito curto
+* O campo `isAdmin` **é ignorado**, garantindo que só os dados corretos entrem no sistema.
+
+---
+
+### 3️⃣ Quando usar interface mesmo assim
+
+* **Interfaces** são úteis dentro da aplicação, para **tipar variáveis e contratos entre services e controllers**.
+* Mas para **receber dados externos na API e validar**, **classe + validação é obrigatória**.
+
+💡 Analogia:
+
+* **Interface = contrato escrito no papel** (TypeScript)
+* **Classe + validação = inspetor que verifica os dados reais antes de entrar no prédio**
 
 ---
 
@@ -276,6 +351,5 @@ Se alguém enviar dados diretamente via Postman, Insomnia, app móvel ou curl, *
 > Pense no DTO como o **contrato** e na validação como a **fiscalização do contrato**.
 > Assim, nada de dados inesperados entra na sua aplicação, o backend fica robusto e os erros são tratados de forma clara.
 
-```
 
 ---
